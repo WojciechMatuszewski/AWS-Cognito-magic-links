@@ -12,7 +12,9 @@
   "devDependencies": {
     "serverless": "^1.77.1",
     "serverless-dotenv-plugin": "^3.0.0",
+    "serverless-export-outputs": "^1.0.2",
     "serverless-go-plugin": "^2.0.1",
-    "serverless-iam-roles-per-function": "^2.0.2"
+    "serverless-iam-roles-per-function": "^2.0.2",
+    "serverless-stack-output": "^0.2.3"
   }
 }

@@ -9,11 +9,14 @@ plugins:
   - serverless-go-plugin
   - serverless-iam-roles-per-function
   - serverless-dotenv-plugin
+  - serverless-stack-output
 
 custom:
   go:
     baseDir: backend/functions
-
+  output:
+    handler: scripts/cognito-output.handler
+    file: frontend/src/amplify/config.json
 functions:
   preSignUp:
     handler: ./pre-signup
@@ -93,3 +96,13 @@ resources:
         CallbackURLs:
           - http://localhost:3000
         DefaultRedirectURI: http://localhost:3000
+
+  Outputs:
+    region:
+      Value: ${self:provider.region}
+    userPoolId:
+      Value: !Ref UserPool
+    userPoolWebClientId:
+      Value: !Ref UserPoolClient
+    authenticationFlowType:
+      Value: CUSTOM_AUTH
