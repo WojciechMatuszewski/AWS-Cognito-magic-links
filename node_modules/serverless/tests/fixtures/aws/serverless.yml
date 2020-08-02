@@ -1,3 +1,0 @@
-service: service
-provider:
-  name: aws
