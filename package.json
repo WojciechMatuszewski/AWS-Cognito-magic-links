@@ -1,0 +1,18 @@
+{
+  "name": "cognito-links",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "sls deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless": "^1.77.1",
+    "serverless-dotenv-plugin": "^3.0.0",
+    "serverless-go-plugin": "^2.0.1",
+    "serverless-iam-roles-per-function": "^2.0.2"
+  }
+}

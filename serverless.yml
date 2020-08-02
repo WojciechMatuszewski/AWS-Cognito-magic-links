@@ -1,0 +1,95 @@
+service: wojtek-lognito-links
+
+provider:
+  name: aws
+  region: eu-central-1
+  runtime: go1.x
+
+plugins:
+  - serverless-go-plugin
+  - serverless-iam-roles-per-function
+  - serverless-dotenv-plugin
+
+custom:
+  go:
+    baseDir: backend/functions
+
+functions:
+  preSignUp:
+    handler: ./pre-signup
+    events:
+      - cognitoUserPool:
+          pool: ${self:service}-user-pool
+          trigger: PreSignUp
+          existing: true
+  defineChallenge:
+    handler: ./define-challenge
+    events:
+      - cognitoUserPool:
+          pool: ${self:service}-user-pool
+          trigger: DefineAuthChallenge
+          existing: true
+  createChallenge:
+    handler: ./create-challenge
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - ses:SendEmail
+          - ses:SendRawEmail
+        Resource: "*"
+        Condition:
+          StringEquals:
+            "ses:FromAddress": "wm.matuszewski@gmail.com"
+    events:
+      - cognitoUserPool:
+          pool: ${self:service}-user-pool
+          trigger: CreateAuthChallenge
+          existing: true
+  verifyChallenge:
+    handler: ./verify-challenge
+    events:
+      - cognitoUserPool:
+          pool: ${self:service}-user-pool
+          trigger: VerifyAuthChallengeResponse
+          existing: true
+
+resources:
+  Resources:
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        MfaConfiguration: OFF
+        UserPoolName: ${self:service}-user-pool
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        Schema:
+          - Name: email
+            Mutable: false
+            Required: true
+          - Name: name
+            Mutable: false
+            Required: true
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+            RequireLowercase: False
+            RequireNumbers: False
+            RequireSymbols: False
+            RequireUppercase: False
+    UserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:service}-user-pool-client
+        UserPoolId: !Ref UserPool
+        ExplicitAuthFlows:
+          - ALLOW_CUSTOM_AUTH
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        SupportedIdentityProviders:
+          - COGNITO
+        CallbackURLs:
+          - http://localhost:3000
+        DefaultRedirectURI: http://localhost:3000
